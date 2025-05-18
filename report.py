@@ -1,74 +1,66 @@
-# report.py
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-import os
-
-# 폰트 경로 설정
-font_regular = os.path.join(os.path.dirname(__file__), "NanumGothic-Regular.ttf")
-font_bold = os.path.join(os.path.dirname(__file__), "NanumGothic-Bold.ttf")
-
-# 폰트 등록
-pdfmetrics.registerFont(TTFont("Nanum", font_regular))
-pdfmetrics.registerFont(TTFont("Nanum-Bold", font_bold))
-from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
 from reportlab.lib.utils import ImageReader
 from io import BytesIO
 from datetime import datetime
 import qrcode
+import matplotlib.pyplot as plt
 
-def generate_pdf_report(name, score, result):
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+import os
+
+font_path_regular = os.path.join(os.path.dirname(__file__), "NanumGothic-Regular.ttf")
+font_path_bold = os.path.join(os.path.dirname(__file__), "NanumGothic-Bold.ttf")
+pdfmetrics.registerFont(TTFont("Nanum", font_path_regular))
+pdfmetrics.registerFont(TTFont("Nanum-Bold", font_path_bold))
+
+def generate_pdf_report(name, score, result, interpretation, answers):
     buffer = BytesIO()
     c = canvas.Canvas(buffer, pagesize=A4)
-
     width, height = A4
-    margin_x = 25 * mm
-    start_y = height - 40 * mm
+    margin = 25 * mm
 
-    c.setFont("Helvetica-Bold", 18)
-    c.drawString(margin_x, start_y, "도박 중독 자가진단 결과 리포트")
+    c.setFont("Nanum-Bold", 18)
+    c.drawString(margin, height - 40 * mm, "도박 중독 자가진단 결과 리포트")
 
-    c.setFont("Helvetica", 12)
-    c.drawString(margin_x, start_y - 30, f"이름: {name}")
-    c.drawString(margin_x, start_y - 50, f"점수: {score}점")
-    c.drawString(margin_x, start_y - 70, f"판단: {result}")
-    c.drawString(margin_x, start_y - 100, "진단 기준:")
-    c.setFont("Helvetica", 11)
-    c.drawString(margin_x + 10, start_y - 120, "- 본 평가는 DSM-5의 도박 장애 기준에 기반함.")
-    c.drawString(margin_x + 10, start_y - 140, "- 최근 12개월 동안 9가지 항목 중 4개 이상에 해당될 경우 도박 장애로 진단됩니다.")
-    c.drawString(margin_x + 10, start_y - 160, "- 점수 4~5: 경증 / 6~7: 중등도 / 8~9: 중증")
+    c.setFont("Nanum", 12)
+    c.drawString(margin, height - 60 * mm, f"이름: {name}")
+    c.drawString(margin, height - 75 * mm, f"총 점수: {score}점")
+    c.drawString(margin, height - 90 * mm, f"진단 결과: {result}")
+    c.drawString(margin, height - 110 * mm, "상세 해석:")
+    c.setFont("Nanum", 11)
+    c.drawString(margin + 10, height - 125 * mm, interpretation)
 
-    c.setFont("Helvetica", 12)
-    c.drawString(margin_x, start_y - 200, "권장사항:")
-    if score >= 8:
-        c.drawString(margin_x + 10, start_y - 220, "- 심각한 수준의 도박 문제가 의심되므로 전문가 상담이 필요합니다.")
-    elif score >= 6:
-        c.drawString(margin_x + 10, start_y - 220, "- 중등도 위험으로 조기 상담이 권장됩니다.")
-    elif score >= 4:
-        c.drawString(margin_x + 10, start_y - 220, "- 도박 습관에 대한 점검이 필요하며, 주의가 요구됩니다.")
-    else:
-        c.drawString(margin_x + 10, start_y - 220, "- 현재로서는 큰 문제가 없습니다. 건전한 생활을 유지하세요.")
+    c.setFont("Nanum", 12)
+    c.drawString(margin, height - 155 * mm, "문항별 점수 시각화:")
 
-    # QR 코드 삽입
-    c.setFont("Helvetica", 10)
-    c.drawString(margin_x, 160, "상담 및 도움 링크 (한국도박문제관리센터):")
-    url = "https://www.kcgp.or.kr"
-    qr_img = qrcode.make(url)
-    qr_buffer = BytesIO()
-    qr_img.save(qr_buffer, format="PNG")
-    qr_buffer.seek(0)
-    qr_reader = ImageReader(qr_buffer)
-    c.drawImage(qr_reader, margin_x, 80, width=80, height=80)
+    # 응답 그래프 그리기
+    fig, ax = plt.subplots()
+    ax.bar(range(1, len(answers) + 1), answers)
+    ax.set_xlabel("문항 번호")
+    ax.set_ylabel("점수")
+    ax.set_title("문항별 점수")
+    fig.tight_layout()
 
-    c.setFont("Helvetica-Oblique", 10)
-    c.drawString(margin_x, 60, "※ 본 검사는 자가진단 도구로서, 전문가의 임상적 평가를 대신할 수 없습니다.")
-    c.drawString(margin_x, 45, "출처: American Psychiatric Association. (2013). DSM-5")
-    c.drawString(margin_x, 30, "추가 정보: National Center for Responsible Gaming, 한국도박문제관리센터")
+    img_buf = BytesIO()
+    fig.savefig(img_buf, format='PNG')
+    plt.close(fig)
+    img_buf.seek(0)
+    c.drawImage(ImageReader(img_buf), margin, height - 280 * mm, width=150 * mm, height=60 * mm)
+
+    # QR 코드
+    qr = qrcode.make("https://www.kcgp.or.kr")
+    qr_buf = BytesIO()
+    qr.save(qr_buf, format="PNG")
+    qr_buf.seek(0)
+    c.drawString(margin, 50 * mm, "도움이 필요하신가요? 아래 QR 코드를 스캔하세요:")
+    c.drawImage(ImageReader(qr_buf), margin, 20 * mm, width=40 * mm, height=40 * mm)
 
     today = datetime.today().strftime("%Y-%m-%d")
-    c.setFont("Helvetica", 10)
-    c.drawString(margin_x, 15, f"리포트 생성일: {today}")
+    c.setFont("Nanum", 10)
+    c.drawString(margin, 10 * mm, f"리포트 생성일: {today}")
 
     c.showPage()
     c.save()
