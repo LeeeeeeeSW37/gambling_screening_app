@@ -36,5 +36,5 @@ You can try the deployed version here:
 1. Clone this repository:
 
 ```bash
-git clone https://github.com/your-username/gambling-screening-app.git
+git clone https://github.com/your-username/gambling_screening_app.git
 cd gambling-screening-app
