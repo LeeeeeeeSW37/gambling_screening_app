@@ -27,7 +27,7 @@ The app guides users through a structured questionnaire and generates a download
 ## Demo
 
 You can try the deployed version here:  
-**[https://gamblingscreeningapp-ky7rkf9ynmgccbq7jjgm3e.streamlit.app](https://gamblingscreeningapp-ky7rkf9ynmgccbq7jjgm3e.streamlit.app)**
+**[https://gamblingscreeningapp-424gtat5t5a52ah2myixay.streamlit.app/](https://gamblingscreeningapp-424gtat5t5a52ah2myixay.streamlit.app/)**
 
 ---
 
