@@ -1,1 +1,1 @@
-# gambling_screening_app
+# gambling-screening-app
