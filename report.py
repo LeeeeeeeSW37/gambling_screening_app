@@ -1,4 +1,15 @@
 # report.py
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+import os
+
+# 폰트 경로 설정
+font_regular = os.path.join(os.path.dirname(__file__), "NanumGothic-Regular.ttf")
+font_bold = os.path.join(os.path.dirname(__file__), "NanumGothic-Bold.ttf")
+
+# 폰트 등록
+pdfmetrics.registerFont(TTFont("Nanum", font_regular))
+pdfmetrics.registerFont(TTFont("Nanum-Bold", font_bold))
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
