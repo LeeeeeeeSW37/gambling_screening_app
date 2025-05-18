@@ -6,10 +6,11 @@ from io import BytesIO
 from datetime import datetime
 import qrcode
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
+import os
 
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-import os
 
 font_path_regular = os.path.join(os.path.dirname(__file__), "NanumGothic-Regular.ttf")
 font_path_bold = os.path.join(os.path.dirname(__file__), "NanumGothic-Bold.ttf")
@@ -36,9 +37,12 @@ def generate_pdf_report(name, score, result, interpretation, answers):
     c.setFont("Nanum", 12)
     c.drawString(margin, height - 155 * mm, "문항별 점수 시각화:")
 
-    # 응답 그래프 그리기
+    # 한글 폰트 설정 (matplotlib용)
+    font_prop = fm.FontProperties(fname=font_path_regular)
+    plt.rcParams["font.family"] = font_prop.get_name()
+
     fig, ax = plt.subplots()
-    ax.bar(range(1, len(answers) + 1), answers)
+    ax.bar(range(1, len(answers) + 1), answers, color="black", edgecolor="gray")
     ax.set_xlabel("문항 번호")
     ax.set_ylabel("점수")
     ax.set_title("문항별 점수")
@@ -50,17 +54,16 @@ def generate_pdf_report(name, score, result, interpretation, answers):
     img_buf.seek(0)
     c.drawImage(ImageReader(img_buf), margin, height - 280 * mm, width=150 * mm, height=60 * mm)
 
-    # QR 코드
     qr = qrcode.make("https://www.kcgp.or.kr")
     qr_buf = BytesIO()
     qr.save(qr_buf, format="PNG")
     qr_buf.seek(0)
-    c.drawString(margin, 50 * mm, "도움이 필요하신가요? 아래 QR 코드를 스캔하세요:")
-    c.drawImage(ImageReader(qr_buf), margin, 20 * mm, width=40 * mm, height=40 * mm)
+    c.drawString(margin, 90 * mm, "도움이 필요하신가요? 아래 QR 코드를 스캔하세요:")
+    c.drawImage(ImageReader(qr_buf), margin, 50 * mm, width=40 * mm, height=40 * mm)
 
     today = datetime.today().strftime("%Y-%m-%d")
     c.setFont("Nanum", 10)
-    c.drawString(margin, 10 * mm, f"리포트 생성일: {today}")
+    c.drawString(margin, 25 * mm, f"리포트 생성일: {today}")
 
     c.showPage()
     c.save()

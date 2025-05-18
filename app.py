@@ -38,7 +38,7 @@ if submitted:
 
     st.markdown("### 문항별 응답 점수 시각화")
     fig, ax = plt.subplots()
-    ax.bar(range(1, len(answers)+1), answers)
+    ax.bar(range(1, len(answers)+1), answers, color="black", edgecolor="gray")
     ax.set_xlabel("문항 번호")
     ax.set_ylabel("응답 점수")
     ax.set_title("도박 위험 응답 점수")
