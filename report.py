@@ -37,15 +37,14 @@ def generate_pdf_report(name, score, result, interpretation, answers):
     c.setFont("Nanum", 12)
     c.drawString(margin, height - 155 * mm, "문항별 점수 시각화:")
 
-    # 한글 폰트 설정 (matplotlib용)
     font_prop = fm.FontProperties(fname=font_path_regular)
     plt.rcParams["font.family"] = font_prop.get_name()
 
     fig, ax = plt.subplots()
     ax.bar(range(1, len(answers) + 1), answers, color="black", edgecolor="gray")
-    ax.set_xlabel("문항 번호")
-    ax.set_ylabel("점수")
-    ax.set_title("문항별 점수")
+    ax.set_xlabel("문항 번호", fontproperties=font_prop)
+    ax.set_ylabel("점수", fontproperties=font_prop)
+    ax.set_title("문항별 점수", fontproperties=font_prop)
     fig.tight_layout()
 
     img_buf = BytesIO()
@@ -54,12 +53,16 @@ def generate_pdf_report(name, score, result, interpretation, answers):
     img_buf.seek(0)
     c.drawImage(ImageReader(img_buf), margin, height - 280 * mm, width=150 * mm, height=60 * mm)
 
+    # 새 페이지에 QR 코드 추가
+    c.showPage()
+    c.setFont("Nanum", 12)
+    c.drawString(margin, height - 50 * mm, "도움이 필요하신가요? 아래 QR 코드를 스캔하세요:")
+
     qr = qrcode.make("https://www.kcgp.or.kr")
     qr_buf = BytesIO()
     qr.save(qr_buf, format="PNG")
     qr_buf.seek(0)
-    c.drawString(margin, 90 * mm, "도움이 필요하신가요? 아래 QR 코드를 스캔하세요:")
-    c.drawImage(ImageReader(qr_buf), margin, 50 * mm, width=40 * mm, height=40 * mm)
+    c.drawImage(ImageReader(qr_buf), margin, height - 120 * mm, width=50 * mm, height=50 * mm)
 
     today = datetime.today().strftime("%Y-%m-%d")
     c.setFont("Nanum", 10)

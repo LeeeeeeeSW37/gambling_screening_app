@@ -2,6 +2,12 @@ import streamlit as st
 from questions import questions
 from report import generate_pdf_report
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
+
+# 폰트 설정
+font_path = "NanumGothic-Regular.ttf"
+font_prop = fm.FontProperties(fname=font_path)
+plt.rcParams["font.family"] = font_prop.get_name()
 
 st.set_page_config(page_title="도박 중독 자가진단", layout="centered")
 st.title("도박 중독 자가진단 테스트 (DSM-5 기준)")
@@ -11,8 +17,7 @@ answers = []
 
 with st.form("gambling_test"):
     for i, q in enumerate(questions):
-        score = st.radio(q, [0, 1, 2], key=f"q{i}", horizontal=True,
-                         help="0: 전혀 아니다 / 1: 가끔 그렇다 / 2: 자주 그렇다")
+        score = st.radio(q, [0, 1, 2], key=f"q{i}", horizontal=True)
         answers.append(score)
     submitted = st.form_submit_button("제출")
 
@@ -39,9 +44,9 @@ if submitted:
     st.markdown("### 문항별 응답 점수 시각화")
     fig, ax = plt.subplots()
     ax.bar(range(1, len(answers)+1), answers, color="black", edgecolor="gray")
-    ax.set_xlabel("문항 번호")
-    ax.set_ylabel("응답 점수")
-    ax.set_title("도박 위험 응답 점수")
+    ax.set_xlabel("문항 번호", fontproperties=font_prop)
+    ax.set_ylabel("응답 점수", fontproperties=font_prop)
+    ax.set_title("도박 위험 응답 점수", fontproperties=font_prop)
     st.pyplot(fig)
 
     pdf_file = generate_pdf_report(user_name, total_score, result, interpretation, answers)
