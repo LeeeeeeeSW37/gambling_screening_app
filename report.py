@@ -67,7 +67,7 @@ def generate_pdf_report(name, score, result, interpretation, answers):
     c.drawText(text_object)
 
     c.setFont("Nanum", 12)
-    c.drawString(margin, height - 195 * mm, "문항별 점수 시각화:")
+    c.drawString(margin, height - 200 * mm, "문항별 점수 시각화:")
 
     font_prop = fm.FontProperties(fname=font_path_regular)
     plt.rcParams["font.family"] = font_prop.get_name()
@@ -83,7 +83,7 @@ def generate_pdf_report(name, score, result, interpretation, answers):
     fig.savefig(img_buf, format='PNG')
     plt.close(fig)
     img_buf.seek(0)
-    c.drawImage(ImageReader(img_buf), margin, height - 320 * mm, width=150 * mm, height=60 * mm)
+    c.drawImage(ImageReader(img_buf), margin, height - 265 * mm, width=150 * mm, height=55 * mm)
 
     c.showPage()
     c.setFont("Nanum", 12)
